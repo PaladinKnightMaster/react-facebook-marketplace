@@ -3,11 +3,13 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { X, Upload, AlertCircle } from "lucide-react"
+import { listingsService, storageService, dbUtils } from "@/lib/database"
 
 interface FormData {
   title: string
@@ -28,14 +30,14 @@ interface FormErrors {
 }
 
 const categories = [
-  { value: "electronics", label: "Electronics" },
-  { value: "vehicles", label: "Vehicles" },
-  { value: "home-goods", label: "Home Goods" },
-  { value: "apparel", label: "Apparel" },
-  { value: "sports", label: "Sporting Goods" },
-  { value: "books", label: "Books & Media" },
-  { value: "toys", label: "Toys & Games" },
-  { value: "other", label: "Other" }
+  { value: "Electronics", label: "Electronics" },
+  { value: "Vehicles", label: "Vehicles" },
+  { value: "Home Goods", label: "Home Goods" },
+  { value: "Apparel", label: "Apparel" },
+  { value: "Sporting Goods", label: "Sporting Goods" },
+  { value: "Books & Media", label: "Books & Media" },
+  { value: "Toys & Games", label: "Toys & Games" },
+  { value: "Other", label: "Other" }
 ]
 
 export default function CreateItemPage() {
@@ -50,6 +52,8 @@ export default function CreateItemPage() {
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [isDragOver, setIsDragOver] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -162,10 +166,68 @@ export default function CreateItemPage() {
     }))
   }
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      console.log("Form submitted:", formData)
-      // Handle form submission
+  const handleSubmit = async () => {
+    if (!validateForm()) return
+
+    setIsSubmitting(true)
+    
+    try {
+      // Upload first image if available
+      let imageUrl: string | null = null
+      if (formData.photos.length > 0) {
+        console.log('Uploading image...')
+        console.log('File details:', {
+          name: formData.photos[0].name,
+          size: formData.photos[0].size,
+          type: formData.photos[0].type
+        })
+        
+        const fileName = dbUtils.generateImageFileName(formData.photos[0].name)
+        console.log('Generated filename:', fileName)
+        
+        imageUrl = await storageService.uploadImage(formData.photos[0], fileName)
+        
+        if (!imageUrl) {
+          console.error('Image upload failed')
+          alert('Failed to upload image. Please try again or create listing without image.')
+          // Continue with listing creation even if image upload fails
+        } else {
+          console.log('Image uploaded successfully:', imageUrl)
+          
+          // Test if the image URL is accessible
+          const isAccessible = await dbUtils.testImageUrl(imageUrl)
+          console.log('Image URL accessibility test:', isAccessible)
+          
+          if (!isAccessible) {
+            console.warn('Image URL is not accessible:', imageUrl)
+            alert('Image uploaded but may not be accessible. Please check your listing after creation.')
+          }
+        }
+      }
+
+      // Create listing
+      const listing = await listingsService.create({
+        title: formData.title,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        category: formData.category,
+        seller_email: formData.email,
+        image_url: imageUrl,
+        location: "Palo Alto, CA" // Default location
+      })
+
+      if (listing) {
+        console.log('Listing created successfully:', listing)
+        console.log('Listing image URL:', listing.image_url)
+        router.push(`/item/${listing.id}`)
+      } else {
+        alert('Failed to create listing. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error creating listing:', error)
+      alert('Failed to create listing. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -264,6 +326,7 @@ export default function CreateItemPage() {
                 value={formData.title}
                 onChange={(e) => updateFormData("title", e.target.value)}
                 className={errors.title ? "border-red-500" : ""}
+                disabled={isSubmitting}
               />
               {errors.title && (
                 <p className="text-red-500 text-sm mt-1 flex items-center">
@@ -278,7 +341,11 @@ export default function CreateItemPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category <span className="text-red-500">*</span>
               </label>
-              <Select value={formData.category} onValueChange={(value) => updateFormData("category", value)}>
+              <Select 
+                value={formData.category} 
+                onValueChange={(value) => updateFormData("category", value)}
+                disabled={isSubmitting}
+              >
                 <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -310,6 +377,7 @@ export default function CreateItemPage() {
                   value={formData.price}
                   onChange={(e) => formatPrice(e.target.value)}
                   className={`pl-8 ${errors.price ? "border-red-500" : ""}`}
+                  disabled={isSubmitting}
                 />
               </div>
               {errors.price && (
@@ -331,6 +399,7 @@ export default function CreateItemPage() {
                 value={formData.email}
                 onChange={(e) => updateFormData("email", e.target.value)}
                 className={errors.email ? "border-red-500" : ""}
+                disabled={isSubmitting}
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1 flex items-center">
@@ -351,6 +420,7 @@ export default function CreateItemPage() {
                 value={formData.description}
                 onChange={(e) => updateFormData("description", e.target.value)}
                 className={errors.description ? "border-red-500" : ""}
+                disabled={isSubmitting}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {formData.description.length}/500 characters
@@ -367,8 +437,9 @@ export default function CreateItemPage() {
             <Button 
               onClick={handleSubmit}
               className="w-full bg-facebook-blue hover:bg-facebook-blue-dark text-white"
+              disabled={isSubmitting}
             >
-              Create Listing
+              {isSubmitting ? "Creating..." : "Create Listing"}
             </Button>
           </div>
         </div>

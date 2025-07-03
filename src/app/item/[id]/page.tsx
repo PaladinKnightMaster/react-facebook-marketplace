@@ -1,48 +1,116 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
+import { useParams } from "next/navigation"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Share, MessageCircle, MapPin, Calendar, Eye, Star } from "lucide-react"
-
-// Mock data for item detail
-const mockItem = {
-  id: "1",
-  title: "MacBook Air M2 - Like New",
-  price: 1200,
-  images: [
-    "/api/placeholder/400/400",
-    "/api/placeholder/400/400",
-    "/api/placeholder/400/400",
-  ],
-  description: "MacBook Air with M2 chip in excellent condition. Used for light programming and web browsing. Comes with original charger and box. No scratches or dents. Battery health is at 94%. Perfect for students or professionals.",
-  location: "Palo Alto, CA",
-  seller: {
-    name: "Sarah Chen",
-    avatar: "/api/placeholder/40/40",
-    joinedDate: "March 2020",
-    rating: 4.9,
-    totalRatings: 47
-  },
-  category: "Electronics",
-  condition: "Like New",
-  postedDate: "2 days ago",
-  views: 124,
-  saves: 12,
-  specs: {
-    "Processor": "Apple M2",
-    "Memory": "8GB",
-    "Storage": "256GB SSD",
-    "Screen": "13.6-inch Liquid Retina",
-    "Color": "Midnight"
-  }
-}
+import { Heart, Share, MessageCircle, MapPin, Calendar, ArrowLeft } from "lucide-react"
+import { listingsService, dbUtils } from "@/lib/database"
+import { Listing } from "@/lib/supabase"
 
 export default function ItemDetailPage() {
+  const params = useParams()
+  const [listing, setListing] = useState<Listing | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [imageError, setImageError] = useState(false)
+
+  useEffect(() => {
+    const fetchListing = async () => {
+      if (!params.id || typeof params.id !== 'string') return
+      
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await listingsService.getById(params.id)
+        if (data) {
+          setListing(data)
+        } else {
+          setError('Listing not found')
+        }
+      } catch (err) {
+        console.error('Error fetching listing:', err)
+        setError('Failed to load listing')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchListing()
+  }, [params.id])
+
+  const handleImageError = () => {
+    console.log('Image failed to load for listing:', params.id)
+    setImageError(true)
+  }
+
+  const shouldShowImage = (listing: Listing) => {
+    return listing.image_url && 
+           dbUtils.isValidImageUrl(listing.image_url) && 
+           !imageError
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center space-x-4">
+            <Link href="/">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <h1 className="text-xl font-semibold text-gray-900">Marketplace</h1>
+          </div>
+        </div>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-facebook-blue mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading listing...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !listing) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center space-x-4">
+            <Link href="/">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <h1 className="text-xl font-semibold text-gray-900">Marketplace</h1>
+          </div>
+        </div>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error}</p>
+            <Link href="/">
+              <Button className="bg-facebook-blue hover:bg-facebook-blue-dark text-white">
+                Back to Marketplace
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Get seller initials for avatar
+  const getSellerInitials = (email: string) => {
+    const name = email.split('@')[0]
+    return name.charAt(0).toUpperCase()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -64,40 +132,30 @@ export default function ItemDetailPage() {
             <div className="bg-white rounded-lg overflow-hidden">
               {/* Main Image */}
               <div className="aspect-square bg-facebook-blue-light relative">
-                <div 
-                  className="w-full h-full opacity-30"
-                  style={{
-                    backgroundImage: `
-                      linear-gradient(45deg, #1877F2 25%, transparent 25%),
-                      linear-gradient(-45deg, #1877F2 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, #1877F2 75%),
-                      linear-gradient(-45deg, transparent 75%, #1877F2 75%)
-                    `,
-                    backgroundSize: '20px 20px',
-                    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-                  }}
-                />
-              </div>
-              
-              {/* Image Thumbnails */}
-              <div className="flex space-x-2 p-4 bg-gray-50">
-                {mockItem.images.map((_, index) => (
-                  <div key={index} className="w-16 h-16 bg-facebook-blue-light rounded border-2 border-facebook-blue cursor-pointer">
-                    <div 
-                      className="w-full h-full opacity-30"
-                      style={{
-                        backgroundImage: `
-                          linear-gradient(45deg, #1877F2 25%, transparent 25%),
-                          linear-gradient(-45deg, #1877F2 25%, transparent 25%),
-                          linear-gradient(45deg, transparent 75%, #1877F2 75%),
-                          linear-gradient(-45deg, transparent 75%, #1877F2 75%)
-                        `,
-                        backgroundSize: '6px 6px',
-                        backgroundPosition: '0 0, 0 3px, 3px -3px, -3px 0px'
-                      }}
-                    />
-                  </div>
-                ))}
+                {shouldShowImage(listing) ? (
+                  <Image
+                    src={listing.image_url!}
+                    alt={listing.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    onError={handleImageError}
+                  />
+                ) : (
+                  <div 
+                    className="w-full h-full opacity-30"
+                    style={{
+                      backgroundImage: `
+                        linear-gradient(45deg, #1877F2 25%, transparent 25%),
+                        linear-gradient(-45deg, #1877F2 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #1877F2 75%),
+                        linear-gradient(-45deg, transparent 75%, #1877F2 75%)
+                      `,
+                      backgroundSize: '20px 20px',
+                      backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                    }}
+                  />
+                )}
               </div>
             </div>
 
@@ -106,12 +164,22 @@ export default function ItemDetailPage() {
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Item Details</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(mockItem.specs).map(([key, value]) => (
-                    <div key={key} className="flex justify-between py-2 border-b border-gray-100 last:border-b-0">
-                      <span className="text-gray-600">{key}</span>
-                      <span className="font-medium text-gray-900">{value}</span>
-                    </div>
-                  ))}
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">Category</span>
+                    <span className="font-medium text-gray-900">{listing.category}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">Location</span>
+                    <span className="font-medium text-gray-900">{listing.location}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">Posted</span>
+                    <span className="font-medium text-gray-900">{dbUtils.formatDate(listing.created_at)}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">Updated</span>
+                    <span className="font-medium text-gray-900">{dbUtils.formatDate(listing.updated_at)}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -124,7 +192,7 @@ export default function ItemDetailPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-3xl font-bold text-gray-900">
-                    ${mockItem.price.toLocaleString()}
+                    {dbUtils.formatPrice(listing.price)}
                   </div>
                   <div className="flex space-x-2">
                     <Button variant="outline" size="icon">
@@ -136,26 +204,21 @@ export default function ItemDetailPage() {
                   </div>
                 </div>
                 
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">{mockItem.title}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">{listing.title}</h1>
                 
                 <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
                     <MapPin className="w-4 h-4 mr-1" />
-                    {mockItem.location}
+                    {listing.location}
                   </div>
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1" />
-                    {mockItem.postedDate}
-                  </div>
-                  <div className="flex items-center">
-                    <Eye className="w-4 h-4 mr-1" />
-                    {mockItem.views}
+                    {dbUtils.formatDate(listing.created_at)}
                   </div>
                 </div>
 
                 <div className="flex space-x-2 mb-6">
-                  <Badge variant="secondary">{mockItem.category}</Badge>
-                  <Badge variant="outline">{mockItem.condition}</Badge>
+                  <Badge variant="secondary">{listing.category}</Badge>
                 </div>
 
                 <Button className="w-full bg-facebook-blue hover:bg-facebook-blue-dark text-white mb-3">
@@ -176,34 +239,21 @@ export default function ItemDetailPage() {
                 
                 <div className="flex items-center space-x-4 mb-4">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src={mockItem.seller.avatar} />
-                    <AvatarFallback>{mockItem.seller.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    <AvatarFallback className="bg-facebook-blue text-white">
+                      {getSellerInitials(listing.seller_email)}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-semibold text-gray-900">{mockItem.seller.name}</div>
-                    <div className="text-sm text-gray-600">Joined {mockItem.seller.joinedDate}</div>
+                    <div className="font-semibold text-gray-900">{listing.seller_email.split('@')[0]}</div>
+                    <div className="text-sm text-gray-600">Member since {dbUtils.formatDate(listing.created_at)}</div>
                   </div>
-                </div>
-
-                <div className="flex items-center space-x-2 mb-4">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`w-4 h-4 ${i < Math.floor(mockItem.seller.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-600">
-                    {mockItem.seller.rating} ({mockItem.seller.totalRatings} reviews)
-                  </span>
                 </div>
 
                 <Separator className="my-4" />
 
-                <Button variant="outline" className="w-full">
-                  View Seller Profile
-                </Button>
+                <div className="text-sm text-gray-600 mb-4">
+                  Contact: {listing.seller_email}
+                </div>
               </CardContent>
             </Card>
 
@@ -211,47 +261,11 @@ export default function ItemDetailPage() {
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Description</h3>
-                <p className="text-gray-700 leading-relaxed">{mockItem.description}</p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {listing.description}
+                </p>
               </CardContent>
             </Card>
-          </div>
-        </div>
-
-        {/* Similar Items */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Similar Items</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }, (_, i) => (
-              <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-                <div className="aspect-square bg-facebook-blue-light relative">
-                  <div 
-                    className="w-full h-full opacity-30"
-                    style={{
-                      backgroundImage: `
-                        linear-gradient(45deg, #1877F2 25%, transparent 25%),
-                        linear-gradient(-45deg, #1877F2 25%, transparent 25%),
-                        linear-gradient(45deg, transparent 75%, #1877F2 75%),
-                        linear-gradient(-45deg, transparent 75%, #1877F2 75%)
-                      `,
-                      backgroundSize: '10px 10px',
-                      backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
-                    }}
-                  />
-                </div>
-                
-                <div className="p-3">
-                  <div className="font-semibold text-sm text-gray-900 mb-1">
-                    ${800 + (i * 100)}
-                  </div>
-                  <div className="text-xs text-gray-600 mb-2 line-clamp-2">
-                    Similar MacBook Air
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {mockItem.location}
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

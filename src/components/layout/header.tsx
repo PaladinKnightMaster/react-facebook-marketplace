@@ -20,7 +20,7 @@ export function Header() {
 
   const handleSearchKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleSearchSubmit(e as any)
+      handleSearchSubmit(e as React.FormEvent)
     }
   }
 
