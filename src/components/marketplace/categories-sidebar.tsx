@@ -2,58 +2,77 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Car, Home, Shirt, Tag, Zap, Music, Briefcase, PawPrint, Wrench, Building, House, Guitar, Coffee, Gamepad2, Baby, Bike } from "lucide-react"
+import { 
+  Car, 
+  Home, 
+  Shirt, 
+  Smartphone, 
+  Gamepad2, 
+  Dumbbell, 
+  Baby, 
+  Gift, 
+  Flower, 
+  Users 
+} from "lucide-react"
 
-const categories = [
-  { name: "Vehicles", icon: Car, href: "/category/vehicles" },
-  { name: "Property Rentals", icon: Building, href: "/category/property-rentals" },
-  { name: "Apparel", icon: Shirt, href: "/category/apparel" },
-  { name: "Classifieds", icon: Tag, href: "/category/classifieds" },
-  { name: "Electronics", icon: Zap, href: "/category/electronics" },
-  { name: "Entertainment", icon: Music, href: "/category/entertainment" },
-  { name: "Family", icon: Baby, href: "/category/family" },
-  { name: "Free Stuff", icon: Tag, href: "/category/free-stuff" },
-  { name: "Garden & Outdoor", icon: Wrench, href: "/category/garden-outdoor" },
-  { name: "Hobbies", icon: Gamepad2, href: "/category/hobbies" },
-  { name: "Home Goods", icon: House, href: "/category/home-goods" },
-  { name: "Home Improvement", icon: Wrench, href: "/category/home-improvement" },
-  { name: "Home Sales", icon: Home, href: "/category/home-sales" },
-  { name: "Musical Instruments", icon: Guitar, href: "/category/musical-instruments" },
-  { name: "Office Supplies", icon: Briefcase, href: "/category/office-supplies" },
-  { name: "Pet Supplies", icon: PawPrint, href: "/category/pet-supplies" },
-  { name: "Sporting Goods", icon: Bike, href: "/category/sporting-goods" },
-  { name: "Toys & Games", icon: Gamepad2, href: "/category/toys-games" },
-  { name: "Buy and sell groups", icon: Tag, href: "/category/groups" },
+interface Category {
+  name: string
+  slug: string
+  icon: React.ReactNode
+}
+
+const categories: Category[] = [
+  { name: "Vehicles", slug: "vehicles", icon: <Car className="w-5 h-5" /> },
+  { name: "Property Rentals", slug: "property-rentals", icon: <Home className="w-5 h-5" /> },
+  { name: "Apparel", slug: "apparel", icon: <Shirt className="w-5 h-5" /> },
+  { name: "Classifieds", slug: "classifieds", icon: <Users className="w-5 h-5" /> },
+  { name: "Electronics", slug: "electronics", icon: <Smartphone className="w-5 h-5" /> },
+  { name: "Entertainment", slug: "entertainment", icon: <Gamepad2 className="w-5 h-5" /> },
+  { name: "Family", slug: "family", icon: <Baby className="w-5 h-5" /> },
+  { name: "Free Stuff", slug: "free-stuff", icon: <Gift className="w-5 h-5" /> },
+  { name: "Garden & Outdoor", slug: "garden-outdoor", icon: <Flower className="w-5 h-5" /> },
+  { name: "Hobbies", slug: "hobbies", icon: <Gamepad2 className="w-5 h-5" /> },
+  { name: "Home Goods", slug: "home-goods", icon: <Home className="w-5 h-5" /> },
+  { name: "Home Improvement", slug: "home-improvement", icon: <Home className="w-5 h-5" /> },
+  { name: "Home Sales", slug: "home-sales", icon: <Home className="w-5 h-5" /> },
+  { name: "Musical Instruments", slug: "musical-instruments", icon: <Gamepad2 className="w-5 h-5" /> },
+  { name: "Office Supplies", slug: "office-supplies", icon: <Smartphone className="w-5 h-5" /> },
+  { name: "Pet Supplies", slug: "pet-supplies", icon: <Baby className="w-5 h-5" /> },
+  { name: "Sporting Goods", slug: "sporting-goods", icon: <Dumbbell className="w-5 h-5" /> },
+  { name: "Toys & Games", slug: "toys-games", icon: <Gamepad2 className="w-5 h-5" /> },
+  { name: "Buy and sell groups", slug: "groups", icon: <Users className="w-5 h-5" /> }
 ]
 
 export function CategoriesSidebar() {
   const pathname = usePathname()
-  
+
+  const isActiveCategory = (slug: string) => {
+    return pathname === `/category/${slug}`
+  }
+
   return (
-    <div className="w-80 bg-white border-r border-gray-200 h-[calc(100vh-64px)] overflow-y-auto">
-      <div className="p-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Categories</h2>
-        <nav className="space-y-1">
-          {categories.map((category) => {
-            const Icon = category.icon
-            const isActive = pathname === category.href
-            return (
-              <Link
-                key={category.name}
-                href={category.href}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-facebook-blue-light text-facebook-blue border-l-4 border-facebook-blue"
-                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
-                {category.name}
-              </Link>
-            )
-          })}
-        </nav>
+    <div className="w-72 bg-white border-r border-gray-200 p-4 h-screen overflow-y-auto">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Browse all</h2>
+        <p className="text-sm text-gray-600">in Marketplace</p>
       </div>
+      
+      <nav className="space-y-1">
+        {categories.map((category) => (
+          <Link
+            key={category.slug}
+            href={`/category/${category.slug}`}
+            className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
+              isActiveCategory(category.slug)
+                ? "bg-facebook-blue-light text-facebook-blue font-medium"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            {category.icon}
+            <span className="text-sm">{category.name}</span>
+          </Link>
+        ))}
+      </nav>
     </div>
   )
 } 

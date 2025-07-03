@@ -1,5 +1,4 @@
 import { CategoriesSidebar } from "@/components/marketplace/categories-sidebar"
-import { ProductGrid } from "@/components/marketplace/product-grid"
 
 const categoryNames: { [key: string]: string } = {
   "vehicles": "Vehicles",

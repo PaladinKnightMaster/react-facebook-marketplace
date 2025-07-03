@@ -1,13 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { X, Camera, Upload, AlertCircle } from "lucide-react"
+import { X, Upload, AlertCircle } from "lucide-react"
 
 interface FormData {
   title: string
@@ -229,9 +229,11 @@ export default function CreateItemPage() {
                 <div className="flex flex-wrap gap-2 mt-3">
                   {formData.photos.map((photo, index) => (
                     <div key={index} className="relative">
-                      <img
+                      <Image
                         src={URL.createObjectURL(photo)}
                         alt={`Preview ${index + 1}`}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-cover rounded border"
                       />
                       <button
@@ -380,10 +382,11 @@ export default function CreateItemPage() {
               {/* Preview Image */}
               <div className="aspect-square bg-facebook-blue-light rounded-lg mb-4 relative overflow-hidden">
                 {formData.photos.length > 0 ? (
-                  <img
+                  <Image
                     src={URL.createObjectURL(formData.photos[0])}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 ) : (
                   <div 
