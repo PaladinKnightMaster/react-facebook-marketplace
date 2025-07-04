@@ -60,44 +60,23 @@ A modern, full-featured marketplace application built with Next.js 15, React 19,
 - **Vercel** - Deployment and hosting platform
 - **Git** - Version control
 
-## 📦 Installation
+## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18.0 or higher
-- npm or yarn package manager
-- Supabase account (for database)
+```bash
+# Clone and setup
+git clone https://github.com/paladinknightmaster/react-facebook-marketplace.git
+cd react-facebook-marketplace
+npm install
 
-### Quick Start
+# Configure environment (see SETUP.md for details)
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/paladinknightmaster/react-facebook-marketplace.git
-   cd react-facebook-marketplace
-   ```
+# Start development server
+npm run dev
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Edit `.env.local` with your Supabase credentials:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open your browser**
-   Navigate to `http://localhost:3000`
+**📖 For detailed setup instructions, database configuration, and troubleshooting, see [SETUP.md](SETUP.md)**
 
 ## 🏗️ Project Structure
 
@@ -130,25 +109,8 @@ react-facebook-marketplace/
 - `npm run lint` - Run ESLint
 - `npm run type-check` - Run TypeScript checker
 
-## 🌟 Features in Detail
+## 🌟 Performance Optimizations
 
-### Database Schema
-The application uses a robust PostgreSQL schema with:
-- **Listings Table**: Stores all marketplace items
-- **Messages Table**: Handles buyer-seller communication
-- **Storage Bucket**: Manages listing images
-- **RLS Policies**: Secure data access controls
-
-### API Architecture
-RESTful API with the following endpoints:
-- `GET /api/listings` - Browse listings with filtering
-- `GET /api/listings/[id]` - Get specific listing
-- `POST /api/listings` - Create new listing
-- `POST /api/upload` - Upload images
-- `GET /api/messages` - Get messages for listing
-- `POST /api/messages` - Send message to seller
-
-### Performance Optimizations
 - **Image Optimization**: Next.js Image component with blur placeholders
 - **Caching**: API response caching with appropriate headers
 - **Database**: Optimized queries with pagination and selective fields
@@ -156,35 +118,9 @@ RESTful API with the following endpoints:
 
 ## 🚀 Deployment
 
-### Deploy to Vercel (Recommended)
+**Quick Deploy:** Connect your GitHub repository to [Vercel](https://vercel.com) for automatic deployments.
 
-1. **Push to GitHub**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
-
-2. **Connect to Vercel**
-   - Visit [vercel.com](https://vercel.com)
-   - Import your repository
-   - Add environment variables
-   - Deploy
-
-3. **Set Environment Variables**
-   In your Vercel dashboard, add:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-
-### Manual Deployment
-
-```bash
-# Build the application
-npm run build
-
-# Start production server
-npm start
-```
+**📖 For detailed deployment instructions, environment setup, and troubleshooting, see [SETUP.md](SETUP.md#deployment-setup)**
 
 ## 📊 Performance Metrics
 
@@ -207,6 +143,89 @@ We welcome contributions! Please check the [Issues](https://github.com/paladinkn
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+## 🎯 Key Development Insights
+
+### What Worked Well:
+
+1. **Component-First Approach**: Building UI components first made integration easier
+2. **TypeScript Throughout**: Caught errors early and improved developer experience
+3. **API-First Design**: Designing API endpoints before implementation clarified data flow
+4. **Incremental Development**: Building features one at a time allowed for proper testing
+
+### Challenges Overcome:
+
+1. **Bleeding Edge Tech**: Using latest versions required problem-solving for compatibility
+2. **Database Design**: Balancing simplicity with functionality in schema design
+3. **State Management**: Coordinating loading states across multiple async operations
+4. **File Uploads**: Implementing secure, validated file upload with preview
+
+### Technical Decisions:
+
+1. **Supabase Over Custom Backend**: Faster development, built-in security
+2. **Next.js App Router**: Modern, file-based routing with server components
+3. **Tailwind CSS**: Utility-first styling for rapid development
+4. **TypeScript**: Type safety throughout the application
+
+## 🏗️ Architecture Decisions
+
+### Frontend Architecture:
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── api/               # API route handlers
+│   ├── (pages)/           # Application pages
+│   └── globals.css        # Global styles
+├── components/
+│   ├── ui/                # Reusable UI components
+│   ├── layout/            # Layout components
+│   └── marketplace/       # Feature-specific components
+└── lib/                   # Utilities and configurations
+```
+
+### Database Architecture:
+```
+listings (main entities)
+├── id (UUID, primary key)
+├── title, description, price
+├── category, location
+├── seller_email
+├── image_url
+└── timestamps
+
+messages (relationships)
+├── id (UUID, primary key)
+├── listing_id (foreign key)
+├── buyer_email, seller_email
+├── message
+└── timestamp
+
+storage/listing-images (file storage)
+```
+
+**Key Database Features:**
+- **Listings Table**: Stores all marketplace items with full metadata
+- **Messages Table**: Handles buyer-seller communication with proper relationships
+- **Storage Bucket**: Manages listing images with public access
+- **RLS Policies**: Secure data access controls at database level
+
+### API Architecture:
+```
+RESTful endpoints with:
+├── Proper HTTP methods (GET, POST)
+├── Status codes (200, 201, 400, 404, 500)
+├── Error handling and validation
+├── Type-safe responses
+└── Security considerations
+```
+
+**API Endpoints:**
+- `GET /api/listings` - Browse listings with filtering and search
+- `GET /api/listings/[id]` - Get specific listing details
+- `POST /api/listings` - Create new listing with validation
+- `POST /api/upload` - Upload images to Supabase Storage
+- `GET /api/messages` - Get messages for specific listing
+- `POST /api/messages` - Send message to seller
 
 ## 🙏 Acknowledgments
 
