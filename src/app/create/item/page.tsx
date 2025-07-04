@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { X, Upload, AlertCircle } from "lucide-react"
-import { listingsService, storageService, dbUtils } from "@/lib/database"
+import { createListing, uploadImage } from "@/lib/api-client"
+import { dbUtils } from "@/lib/database"
 
 interface FormData {
   title: string
@@ -194,31 +195,29 @@ export default function CreateItemPage() {
           type: formData.photos[0].type
         })
         
-        const fileName = dbUtils.generateImageFileName(formData.photos[0].name)
-        console.log('Generated filename:', fileName)
-        
-        imageUrl = await storageService.uploadImage(formData.photos[0], fileName)
-        
-        if (!imageUrl) {
-          console.error('Image upload failed')
-          alert('Failed to upload image. Please try again or create listing without image.')
-          // Continue with listing creation even if image upload fails
-        } else {
+        try {
+          imageUrl = await uploadImage(formData.photos[0])
           console.log('Image uploaded successfully:', imageUrl)
           
-          // Test if the image URL is accessible
-          const isAccessible = await dbUtils.testImageUrl(imageUrl)
-          console.log('Image URL accessibility test:', isAccessible)
-          
-          if (!isAccessible) {
-            console.warn('Image URL is not accessible:', imageUrl)
-            alert('Image uploaded but may not be accessible. Please check your listing after creation.')
+          if (imageUrl) {
+            // Test if the image URL is accessible
+            const isAccessible = await dbUtils.testImageUrl(imageUrl)
+            console.log('Image URL accessibility test:', isAccessible)
+            
+            if (!isAccessible) {
+              console.warn('Image URL is not accessible:', imageUrl)
+              alert('Image uploaded but may not be accessible. Please check your listing after creation.')
+            }
           }
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError)
+          alert('Failed to upload image. Please try again or create listing without image.')
+          // Continue with listing creation even if image upload fails
         }
       }
 
       // Create listing
-      const listing = await listingsService.create({
+      const listing = await createListing({
         title: formData.title,
         description: formData.description,
         price: parseFloat(formData.price),
@@ -237,7 +236,13 @@ export default function CreateItemPage() {
       }
     } catch (error) {
       console.error('Error creating listing:', error)
-      alert('Failed to create listing. Please try again.')
+      
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        alert(`Failed to create listing: ${error.message}`)
+      } else {
+        alert('Failed to create listing. Please try again.')
+      }
     } finally {
       setIsSubmitting(false)
     }

@@ -4,7 +4,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { listingsService, dbUtils } from "@/lib/database"
+import { getListings, searchListings, getListingsByCategory } from "@/lib/api-client"
+import { dbUtils } from "@/lib/database"
 import { Listing } from "@/lib/supabase"
 
 interface ProductGridProps {
@@ -27,11 +28,11 @@ export function ProductGrid({ category, searchQuery }: ProductGridProps) {
         let data: Listing[] = []
         
         if (searchQuery) {
-          data = await listingsService.search(searchQuery)
+          data = await searchListings(searchQuery)
         } else if (category) {
-          data = await listingsService.getByCategory(category)
+          data = await getListingsByCategory(category)
         } else {
-          data = await listingsService.getAll()
+          data = await getListings()
         }
         
         setListings(data)

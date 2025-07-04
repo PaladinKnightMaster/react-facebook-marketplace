@@ -10,7 +10,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Share, MessageCircle, MapPin, Calendar, ArrowLeft } from "lucide-react"
-import { listingsService, dbUtils } from "@/lib/database"
+import { getListing } from "@/lib/api-client"
+import { dbUtils } from "@/lib/database"
 import { Listing } from "@/lib/supabase"
 
 export default function ItemDetailPage() {
@@ -27,7 +28,9 @@ export default function ItemDetailPage() {
       try {
         setLoading(true)
         setError(null)
-        const data = await listingsService.getById(params.id)
+        
+        const data = await getListing(params.id)
+        
         if (data) {
           setListing(data)
         } else {
