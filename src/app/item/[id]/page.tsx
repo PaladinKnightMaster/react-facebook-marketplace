@@ -134,7 +134,7 @@ export default function ItemDetailPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg overflow-hidden">
               {/* Main Image */}
-              <div className="aspect-square bg-facebook-blue-light relative">
+              <div className="aspect-square bg-facebook-blue-light" style={{ position: 'relative' }}>
                 {shouldShowImage(listing) ? (
                   <Image
                     src={listing.image_url!}

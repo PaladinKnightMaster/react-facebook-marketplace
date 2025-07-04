@@ -111,13 +111,13 @@ export function ProductGrid({ category, searchQuery }: ProductGridProps) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {listings.map((listing) => (
+      {listings.map((listing, index) => (
         <Link 
           key={listing.id} 
           href={`/item/${listing.id}`}
           className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
         >
-          <div className="aspect-square bg-facebook-blue-light relative overflow-hidden">
+          <div className="aspect-square bg-facebook-blue-light overflow-hidden relative">
             {shouldShowImage(listing) ? (
               <Image
                 src={listing.image_url!}
@@ -125,6 +125,7 @@ export function ProductGrid({ category, searchQuery }: ProductGridProps) {
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+                priority={index === 0}
                 onError={() => handleImageError(listing.id)}
               />
             ) : (

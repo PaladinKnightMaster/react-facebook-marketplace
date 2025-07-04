@@ -468,7 +468,7 @@ export default function CreateItemPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Preview</h3>
               
               {/* Preview Image */}
-              <div className="aspect-square bg-facebook-blue-light rounded-lg mb-4 relative overflow-hidden">
+              <div className="aspect-square bg-facebook-blue-light rounded-lg mb-4 overflow-hidden" style={{ position: 'relative' }}>
                 {formData.photos.length > 0 ? (
                   <Image
                     src={URL.createObjectURL(formData.photos[0])}
