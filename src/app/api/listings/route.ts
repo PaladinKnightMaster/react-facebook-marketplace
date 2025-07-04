@@ -26,7 +26,13 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       createApiSuccess(listings, 'Listings retrieved successfully'),
-      { status: HTTP_STATUS.OK }
+      { 
+        status: HTTP_STATUS.OK,
+        headers: {
+          'Cache-Control': 'public, max-age=60, s-maxage=300',
+          'Vary': 'category, search'
+        }
+      }
     )
   } catch (error) {
     console.error('Error fetching listings:', error)

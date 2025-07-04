@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import { ProgressiveLoadingGrid } from "@/components/ui/loading"
 import { getListings, searchListings, getListingsByCategory } from "@/lib/api-client"
 import { dbUtils } from "@/lib/database"
 import { Listing } from "@/lib/supabase"
@@ -59,20 +60,7 @@ export function ProductGrid({ category, searchQuery }: ProductGridProps) {
   }
 
   if (loading) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {Array.from({ length: 10 }, (_, i) => (
-          <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-pulse">
-            <div className="aspect-square bg-gray-200" />
-            <div className="p-3">
-              <div className="h-6 bg-gray-200 rounded mb-2" />
-              <div className="h-4 bg-gray-200 rounded mb-2" />
-              <div className="h-3 bg-gray-200 rounded" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
+    return <ProgressiveLoadingGrid count={10} />
   }
 
   if (error) {
@@ -126,6 +114,9 @@ export function ProductGrid({ category, searchQuery }: ProductGridProps) {
                 className="object-cover"
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
                 priority={index === 0}
+                quality={index === 0 ? 85 : 75}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                 onError={() => handleImageError(listing.id)}
               />
             ) : (

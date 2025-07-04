@@ -88,4 +88,25 @@ export function LoadingButton({
       {children}
     </button>
   )
+}
+
+// Progressive loading skeleton for marketplace items
+export function ProgressiveLoadingGrid({ count = 10, className = '' }: LoadingGridProps) {
+  return (
+    <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 ${className}`}>
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="aspect-square bg-gradient-to-br from-facebook-blue-light to-gray-100 animate-pulse" />
+          <div className="p-3 space-y-2">
+            <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse" />
+            <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-3/4 animate-pulse" />
+            <div className="flex justify-between items-center">
+              <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-1/2 animate-pulse" />
+              <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-1/4 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 } 

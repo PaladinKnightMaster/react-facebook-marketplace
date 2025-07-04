@@ -34,7 +34,13 @@ export async function GET(
 
     return NextResponse.json(
       createApiSuccess(listing, 'Listing retrieved successfully'),
-      { status: HTTP_STATUS.OK }
+      { 
+        status: HTTP_STATUS.OK,
+        headers: {
+          'Cache-Control': 'public, max-age=300, s-maxage=600',
+          'ETag': `"${listing.id}-${new Date(listing.updated_at).getTime()}"`
+        }
+      }
     )
   } catch (error) {
     console.error('Error fetching listing:', error)

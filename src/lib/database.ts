@@ -2,12 +2,13 @@ import { supabase, Listing, Message } from './supabase'
 
 // Listings Service
 export const listingsService = {
-  // Get all listings
-  async getAll(): Promise<Listing[]> {
+  // Get all listings with pagination and selective fields
+  async getAll(limit = 50, offset = 0): Promise<Listing[]> {
     const { data, error } = await supabase
       .from('listings')
-      .select('*')
+      .select('id, title, description, price, category, seller_email, image_url, location, created_at, updated_at')
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
     
     if (error) {
       console.error('Error fetching listings:', error)
@@ -17,13 +18,14 @@ export const listingsService = {
     return data || []
   },
 
-  // Get listings by category
-  async getByCategory(category: string): Promise<Listing[]> {
+  // Get listings by category with pagination
+  async getByCategory(category: string, limit = 50, offset = 0): Promise<Listing[]> {
     const { data, error } = await supabase
       .from('listings')
-      .select('*')
+      .select('id, title, description, price, category, seller_email, image_url, location, created_at, updated_at')
       .eq('category', category)
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
     
     if (error) {
       console.error('Error fetching listings by category:', error)
@@ -33,13 +35,14 @@ export const listingsService = {
     return data || []
   },
 
-  // Search listings
-  async search(query: string): Promise<Listing[]> {
+  // Search listings with pagination and text search optimization
+  async search(query: string, limit = 50, offset = 0): Promise<Listing[]> {
     const { data, error } = await supabase
       .from('listings')
-      .select('*')
+      .select('id, title, description, price, category, seller_email, image_url, location, created_at, updated_at')
       .or(`title.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%`)
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
     
     if (error) {
       console.error('Error searching listings:', error)
