@@ -30,13 +30,25 @@ interface FormErrors {
 }
 
 const categories = [
-  { value: "Electronics", label: "Electronics" },
   { value: "Vehicles", label: "Vehicles" },
-  { value: "Home Goods", label: "Home Goods" },
+  { value: "Property Rentals", label: "Property Rentals" },
   { value: "Apparel", label: "Apparel" },
+  { value: "Classifieds", label: "Classifieds" },
+  { value: "Electronics", label: "Electronics" },
+  { value: "Entertainment", label: "Entertainment" },
+  { value: "Family", label: "Family" },
+  { value: "Free Stuff", label: "Free Stuff" },
+  { value: "Garden & Outdoor", label: "Garden & Outdoor" },
+  { value: "Hobbies", label: "Hobbies" },
+  { value: "Home Goods", label: "Home Goods" },
+  { value: "Home Improvement", label: "Home Improvement" },
+  { value: "Home Sales", label: "Home Sales" },
+  { value: "Musical Instruments", label: "Musical Instruments" },
+  { value: "Office Supplies", label: "Office Supplies" },
+  { value: "Pet Supplies", label: "Pet Supplies" },
   { value: "Sporting Goods", label: "Sporting Goods" },
-  { value: "Books & Media", label: "Books & Media" },
   { value: "Toys & Games", label: "Toys & Games" },
+  { value: "Buy and sell groups", label: "Buy and sell groups" },
   { value: "Other", label: "Other" }
 ]
 

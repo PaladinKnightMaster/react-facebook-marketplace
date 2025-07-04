@@ -20,7 +20,8 @@ const categoryNames: { [key: string]: string } = {
   "pet-supplies": "Pet Supplies",
   "sporting-goods": "Sporting Goods",
   "toys-games": "Toys & Games",
-  "groups": "Buy and sell groups"
+  "groups": "Buy and sell groups",
+  "other": "Other"
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {

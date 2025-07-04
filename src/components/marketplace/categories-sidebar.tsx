@@ -12,7 +12,8 @@ import {
   Baby, 
   Gift, 
   Flower, 
-  Users 
+  Users,
+  MoreHorizontal
 } from "lucide-react"
 
 interface Category {
@@ -40,7 +41,8 @@ const categories: Category[] = [
   { name: "Pet Supplies", slug: "pet-supplies", icon: <Baby className="w-5 h-5" /> },
   { name: "Sporting Goods", slug: "sporting-goods", icon: <Dumbbell className="w-5 h-5" /> },
   { name: "Toys & Games", slug: "toys-games", icon: <Gamepad2 className="w-5 h-5" /> },
-  { name: "Buy and sell groups", slug: "groups", icon: <Users className="w-5 h-5" /> }
+  { name: "Buy and sell groups", slug: "groups", icon: <Users className="w-5 h-5" /> },
+  { name: "Other", slug: "other", icon: <MoreHorizontal className="w-5 h-5" /> }
 ]
 
 export function CategoriesSidebar() {
